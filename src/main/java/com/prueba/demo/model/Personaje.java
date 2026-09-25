@@ -11,35 +11,31 @@ public class Personaje {
     @Column(name = "id_personaje")
     private Integer idPersonaje;
 
-    // Le decimos exactamente cuánto mide y que no puede ir vacío (nullable = false)
+    // Especificamos el tamaño y evitamos que quede vacio con (nullable = false)
     @Column(name = "nombre_completo", nullable = false, length = 100)
     private String nombreCompleto;
 
     @Column(name = "ocupacion", length = 50)
     private String ocupacion;
 
-    // Le especificamos que es un texto largo, no un texto corto normal
+    // Especificamos que es un texto largo, no un texto corto normal
     @Column(name = "biografia", columnDefinition = "TEXT")
     private String biografia;
 
-    /* ==============================================================
-       CONSTRUCTORES (Necesarios para crear los objetos)
-       ============================================================== */
+    // Constructor
 
-    // 1. Constructor vacío (Obligatorio para que Spring Boot funcione)
+    // Constructor vacío (para que Spring Boot funcione)
     public Personaje() {
     }
 
-    // 2. Constructor con datos (Para facilitar la creación desde el código)
+    // Constructor con datos (Para facilitar la creación desde el código)
     public Personaje(String nombreCompleto, String ocupacion, String biografia) {
         this.nombreCompleto = nombreCompleto;
         this.ocupacion = ocupacion;
         this.biografia = biografia;
     }
 
-    /* ==============================================================
-       GETTERS Y SETTERS (Las puertas de acceso)
-       ============================================================== */
+    // Getters and Setters
 
     public Integer getIdPersonaje() {
         return idPersonaje;
