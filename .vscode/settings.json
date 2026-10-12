@@ -1,4 +1,19 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://astral_admin:ehofMrnxX44c32sQsJPQfp3MRRNNiuYh@dpg-daqmgt0u01pc73f874d0-a.virginia-postgres.render.com/wiki_db_80x4?ssl=true",
+            "name": "Wiki Steampunk"
+        }
+    ]
 }
