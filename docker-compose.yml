@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15
+    container_name: steampunk_db
+    environment:
+      POSTGRES_USER: ansus
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: wiki_steampunk
+    ports:
+      - "5432:5432" # Expone el puerto de la base de datos a tu Steam Deck
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Guarda los datos para que no se borren si apagas el contenedor
+
+volumes:
+  postgres_data:
