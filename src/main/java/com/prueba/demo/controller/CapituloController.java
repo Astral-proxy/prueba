@@ -1,7 +1,7 @@
-package com.example.demo.controller;
+package com.prueba.demo.controller;
 
-import com.example.demo.model.Capitulo;
-import com.example.demo.service.CapituloService;
+import com.prueba.demo.model.Capitulo;
+import com.prueba.demo.service.CapituloService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

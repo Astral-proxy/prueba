@@ -1,7 +1,7 @@
-package com.example.demo.service;
+package com.prueba.demo.service;
 
-import com.example.demo.model.Especie;
-import com.example.demo.repository.EspecieRepository;
+import com.prueba.demo.model.Especie;
+import com.prueba.demo.repository.EspecieRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
