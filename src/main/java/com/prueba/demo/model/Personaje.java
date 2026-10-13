@@ -46,6 +46,39 @@ public class Personaje {
 
     // (Recuerda agregar al final del archivo su respectivo getUbicacionActual() y setUbicacionActual() )
 
+ // La brújula que apunta a qué raza/especie pertenece
+    @ManyToOne
+    @JoinColumn(name = "id_especie")
+    private Especie especie;
+    
+    // Recuerda agregar al final del archivo:
+    // public Especie getEspecie() { return especie; }
+    // public void setEspecie(Especie especie) { this.especie = especie; }
+    
+ // Relación de habilidades que posee el personaje
+    @ManyToMany
+    @JoinTable(
+        name = "personaje_habilidad",
+        joinColumns = @JoinColumn(name = "id_personaje"),
+        inverseJoinColumns = @JoinColumn(name = "id_habilidad")
+    )
+    private List<Habilidad> habilidades;
+
+    // No olvides agregar getHabilidades() y setHabilidades() al final del archivo.
+    
+ // El registro de en qué capítulos de la novela aparece este personaje
+    @ManyToMany
+    @JoinTable(
+        name = "personaje_capitulo",
+        joinColumns = @JoinColumn(name = "id_personaje"),
+        inverseJoinColumns = @JoinColumn(name = "id_capitulo")
+    )
+    private List<Capitulo> capitulosAparicion;
+
+    // Y recuerda agregar al final de tu archivo:
+    // public List<Capitulo> getCapitulosAparicion() { return capitulosAparicion; }
+    // public void setCapitulosAparicion(List<Capitulo> capitulos) { this.capitulosAparicion = capitulos; }
+    
     // Constructores
 
     // Constructor vacío (para que Spring Boot funcione)
