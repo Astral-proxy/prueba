@@ -79,6 +79,31 @@ public class Personaje {
     // public List<Capitulo> getCapitulosAparicion() { return capitulosAparicion; }
     // public void setCapitulosAparicion(List<Capitulo> capitulos) { this.capitulosAparicion = capitulos; }
     
+ // 1. A qué facciones pertenece
+    @ManyToMany
+    @JoinTable(
+        name = "personaje_organizacion",
+        joinColumns = @JoinColumn(name = "id_personaje"),
+        inverseJoinColumns = @JoinColumn(name = "id_organizacion")
+    )
+    private List<Organizacion> organizaciones;
+
+    // 2. En qué eventos históricos participó
+    @ManyToMany
+    @JoinTable(
+        name = "personaje_evento",
+        joinColumns = @JoinColumn(name = "id_personaje"),
+        inverseJoinColumns = @JoinColumn(name = "id_evento")
+    )
+    private List<EventoHistorico> eventos;
+
+    // 3. Qué documentos o planos ha escrito (Uno a Muchos)
+    @OneToMany(mappedBy = "autor")
+    @JsonIgnore
+    private List<Documento> documentosEscritos;
+
+    // IMPORTANTE: Recuerda generar los Getters y Setters de estas 3 variables al final de Personaje.java
+    
     // Constructores
 
     // Constructor vacío (para que Spring Boot funcione)
@@ -152,4 +177,48 @@ public class Personaje {
     public void setUbicacionActual(Ubicacion ubicacionActual) {
         this.ubicacionActual = ubicacionActual;
     }
+
+    // Para la Especie / Raza (Muchos a Uno)
+    public Especie getEspecie() {
+        return especie;
+    }
+
+    public void setEspecie(Especie especie) {
+        this.especie = especie;
+    }
+
+    // Para las Habilidades (Muchos a Muchos)
+    public List<Habilidad> getHabilidades() {
+        return habilidades;
+    }
+
+    public void setHabilidades(List<Habilidad> habilidades) {
+        this.habilidades = habilidades;
+    }
+
+    // Para los Capítulos de Aparición (Muchos a Muchos)
+    public List<Capitulo> getCapitulosAparicion() {
+        return capitulosAparicion;
+    }
+
+    public void setCapitulosAparicion(List<Capitulo> capitulosAparicion) {
+        this.capitulosAparicion = capitulosAparicion;
+    }
+
+    public List<Organizacion> getOrganizaciones() { 
+    	return organizaciones; }
+    
+    public void setOrganizaciones(List<Organizacion> organizaciones) 
+    { this.organizaciones = organizaciones;
+    }
+
+    public List<EventoHistorico> getEventos() { 
+    	return eventos; }
+    
+    public void setEventos(List<EventoHistorico> eventos) { 
+    	this.eventos = eventos; 
+    	}
+
+    public List<Documento> getDocumentosEscritos() { return documentosEscritos; }
+    public void setDocumentosEscritos(List<Documento> documentosEscritos) { this.documentosEscritos = documentosEscritos; }
 }
