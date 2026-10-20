@@ -23,6 +23,9 @@ public class Personaje {
     @Column(name = "biografia", columnDefinition = "TEXT")
     private String biografia;
 
+    @Column(name = "alias", length = 100)
+    private String alias;
+
     // Un personaje tiene MUCHAS relaciones
     @OneToMany(mappedBy = "personaje", cascade = CascadeType.ALL)
     private List<Relacion> relacionesFamiliares;
@@ -221,4 +224,23 @@ public class Personaje {
 
     public List<Documento> getDocumentosEscritos() { return documentosEscritos; }
     public void setDocumentosEscritos(List<Documento> documentosEscritos) { this.documentosEscritos = documentosEscritos; }
+
+    // ==========================================
+    // GETTERS Y SETTERS: DATOS PERSONALES INFOBOX
+    // ==========================================
+
+    public Integer getEdad() { return edad; }
+    public void setEdad(Integer edad) { this.edad = edad; }
+
+    public Integer getEstaturaCm() { return estaturaCm; }
+    public void setEstaturaCm(Integer estaturaCm) { this.estaturaCm = estaturaCm; }
+
+    public String getEstadoCivil() { return estadoCivil; }
+    public void setEstadoCivil(String estadoCivil) { this.estadoCivil = estadoCivil; }
+
+    public String getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(String fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+
+    public String getAlias() { return alias; }
+    public void setAlias(String alias) { this.alias = alias; }
 }
