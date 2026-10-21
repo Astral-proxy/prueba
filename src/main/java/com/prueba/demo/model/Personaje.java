@@ -1,9 +1,21 @@
 package com.prueba.demo.model;
 
-import jakarta.persistence.*;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Personajes")
@@ -39,6 +51,14 @@ public class Personaje {
 
     @Column(name = "fecha_nacimiento")
     private String fechaNacimiento;
+
+    @ManyToMany
+@JoinTable(
+    name = "personaje_material",
+    joinColumns = @JoinColumn(name = "personaje_id"),
+    inverseJoinColumns = @JoinColumn(name = "material_id")
+)
+private List<Material> inventarioMateriales;
 
     // Un personaje tiene MUCHAS relaciones
     @OneToMany(mappedBy = "personaje", cascade = CascadeType.ALL)
@@ -257,4 +277,7 @@ public class Personaje {
 
     public String getAlias() { return alias; }
     public void setAlias(String alias) { this.alias = alias; }
+
+    public List<Material> getInventarioMateriales() { return inventarioMateriales; }
+public void setInventarioMateriales(List<Material> inventarioMateriales) { this.inventarioMateriales = inventarioMateriales; }
 }

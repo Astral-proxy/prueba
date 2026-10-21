@@ -27,7 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
         <!-- Agrega esta línea exacta para forzar a Spring Boot a ver tu clase principal -->
         <start-class>com.prueba.demo.DemoApplication</start-class> 
     </properties>
