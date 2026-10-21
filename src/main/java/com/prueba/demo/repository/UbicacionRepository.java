@@ -1,34 +1,11 @@
-package com.prueba.demo.service;
+package com.prueba.demo.repository;
 
 import com.prueba.demo.model.Ubicacion;
-import com.prueba.demo.repository.UbicacionRepository;
-import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-@Service
-public class UbicacionService {
-
-    // Conectamos con el archivista
-    private final UbicacionRepository ubicacionRepository;
-
-    public UbicacionService(UbicacionRepository ubicacionRepository) {
-        this.ubicacionRepository = ubicacionRepository;
-    }
-
-    // 1. Obtener el mapa completo (todas las ubicaciones)
-    public List<Ubicacion> obtenerTodas() {
-        return ubicacionRepository.findAll();
-    }
-
-    // 2. Buscar un lugar específico por su ID
-    public Optional<Ubicacion> obtenerPorId(Integer id) {
-        return ubicacionRepository.findById(id);
-    }
-
-    // 3. Registrar una nueva ciudad, edificio o ruina en la base de datos
-    public Ubicacion guardarUbicacion(Ubicacion ubicacion) {
-        return ubicacionRepository.save(ubicacion);
-    }
+@Repository
+public interface UbicacionRepository extends JpaRepository<Ubicacion, Integer> {
+    // Al igual que con Personaje, Spring Boot ya sabe hacer todo el CRUD (Crear, Leer, Actualizar, Borrar)
+    // solo con heredar de JpaRepository.
 }

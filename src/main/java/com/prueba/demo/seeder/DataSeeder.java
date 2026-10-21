@@ -67,6 +67,18 @@ public class DataSeeder implements CommandLineRunner {
                 if (!estadoCivil.isEmpty()) personaje.setEstadoCivil(estadoCivil);
                 if (!fechaNacimiento.isEmpty()) personaje.setFechaNacimiento(fechaNacimiento);
 
+                // Bloque seguro para convertir los números (Complaciendo al editor)
+                try {
+                    if (edadStr != null && !edadStr.isEmpty()) {
+                        personaje.setEdad(Integer.valueOf(edadStr));
+                    }
+                    if (estaturaStr != null && !estaturaStr.isEmpty()) {
+                        personaje.setEstaturaCm(Integer.valueOf(estaturaStr));
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("⚠️ Aviso: La edad o estatura de " + nombreCompleto + " no es válida. Se dejará en blanco.");
+                }
+
                 // 5. Conectar la Especie (Buscamos si existe, si no, la creamos)
                 if (!nombreEspecie.isEmpty()) {
                     Especie especie = especieRepository.findByNombre(nombreEspecie)

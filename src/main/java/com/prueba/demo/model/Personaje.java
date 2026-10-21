@@ -1,6 +1,8 @@
 package com.prueba.demo.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 @Entity
@@ -25,6 +27,18 @@ public class Personaje {
 
     @Column(name = "alias", length = 100)
     private String alias;
+
+    @Column(name = "edad")
+    private Integer edad;
+
+    @Column(name = "estatura_cm")
+    private Integer estaturaCm;
+
+    @Column(name = "estado_civil", length = 50)
+    private String estadoCivil;
+
+    @Column(name = "fecha_nacimiento")
+    private String fechaNacimiento;
 
     // Un personaje tiene MUCHAS relaciones
     @OneToMany(mappedBy = "personaje", cascade = CascadeType.ALL)
