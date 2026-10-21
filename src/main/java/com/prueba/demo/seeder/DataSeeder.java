@@ -14,7 +14,6 @@ public class DataSeeder implements CommandLineRunner {
 
     private final PersonajeRepository personajeRepository;
     private final EspecieRepository especieRepository;
-    // Más adelante agregaremos aquí los repositorios de Artefactos, Facciones, etc.
 
     public DataSeeder(PersonajeRepository personajeRepository, EspecieRepository especieRepository) {
         this.personajeRepository = personajeRepository;
@@ -23,15 +22,8 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Candado de seguridad: Si ya hay personajes, no volver a sembrar
-        if (personajeRepository.count() > 0) {
-            System.out.println("🌱 La base de datos ya tiene personajes. Omitiendo el Seeder.");
-            return;
-        }
+        System.out.println("🚀 Iniciando el sembrado inteligente desde datos_wiki.csv...");
 
-        System.out.println("🚀 Iniciando el sembrado de datos desde datos_wiki.csv...");
-
-        // 2. Leer el archivo CSV desde la carpeta resources
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("datos_wiki.csv").getInputStream()))) {
             String linea;
             boolean esPrimeraLinea = true;
@@ -39,56 +31,56 @@ public class DataSeeder implements CommandLineRunner {
             while ((linea = br.readLine()) != null) {
                 if (esPrimeraLinea) { 
                     esPrimeraLinea = false; 
-                    continue; // Saltamos los encabezados de las columnas
+                    continue; 
                 }
 
-                // Magia de Expresiones Regulares para separar por comas (ignorando comas dentro de comillas)
                 String[] datos = linea.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
-                // 3. Extraer columnas (El orden depende de tu CSV)
                 String nombreCompleto = datos[0].trim();
                 String alias = datos[1].trim();
-                if (nombreCompleto.isEmpty()) continue; // Evitar filas vacías
+                if (nombreCompleto.isEmpty()) continue; 
 
-                String ocupacion = datos[2].trim();
-                String nombreEspecie = datos[3].trim();
-                String edadStr = datos[4].trim();
-                String estaturaStr = datos[5].trim();
-                String estadoCivil = datos[6].trim();
-                String fechaNacimiento = datos[7].trim();
-                String biografia = datos[8].replace("\"", "").trim(); // Quitamos comillas si las tiene
+                // ESCENARIO 3: Verificamos si el personaje NO existe en la BD antes de continuar
+                if (!personajeRepository.existsByNombreCompleto(nombreCompleto)) {
+                    
+                    String ocupacion = datos[2].trim();
+                    String nombreEspecie = datos[3].trim();
+                    String edadStr = datos[4].trim();
+                    String estaturaStr = datos[5].trim();
+                    String estadoCivil = datos[6].trim();
+                    String fechaNacimiento = datos[7].trim();
+                    String biografia = datos[8].replace("\"", "").trim();
 
-                // 4. Crear al Personaje
-                Personaje personaje = new Personaje(nombreCompleto, ocupacion, biografia);
-                
-                if (!alias.isEmpty()) personaje.setAlias(alias);
-                if (!edadStr.isEmpty()) personaje.setEdad(Integer.parseInt(edadStr));
-                if (!estaturaStr.isEmpty()) personaje.setEstaturaCm(Integer.parseInt(estaturaStr));
-                if (!estadoCivil.isEmpty()) personaje.setEstadoCivil(estadoCivil);
-                if (!fechaNacimiento.isEmpty()) personaje.setFechaNacimiento(fechaNacimiento);
+                    // Crear al Personaje
+                    Personaje personaje = new Personaje(nombreCompleto, ocupacion, biografia);
+                    
+                    if (!alias.isEmpty()) personaje.setAlias(alias);
+                    if (!estadoCivil.isEmpty()) personaje.setEstadoCivil(estadoCivil);
+                    if (!fechaNacimiento.isEmpty()) personaje.setFechaNacimiento(fechaNacimiento);
 
-                // Bloque seguro para convertir los números (Complaciendo al editor)
-                try {
-                    if (edadStr != null && !edadStr.isEmpty()) {
-                        personaje.setEdad(Integer.valueOf(edadStr));
+                    // Bloque seguro para convertir los números
+                    try {
+                        if (!edadStr.isEmpty()) personaje.setEdad(Integer.valueOf(edadStr));
+                        if (!estaturaStr.isEmpty()) personaje.setEstaturaCm(Integer.valueOf(estaturaStr));
+                    } catch (NumberFormatException e) {
+                        System.out.println("⚠️ Aviso: La edad o estatura de " + nombreCompleto + " no es válida. Se dejará en blanco.");
                     }
-                    if (estaturaStr != null && !estaturaStr.isEmpty()) {
-                        personaje.setEstaturaCm(Integer.valueOf(estaturaStr));
+
+                    // Conectar la Especie
+                    if (!nombreEspecie.isEmpty()) {
+                        Especie especie = especieRepository.findByNombre(nombreEspecie)
+                                .orElseGet(() -> especieRepository.save(new Especie(nombreEspecie, "Autogenerado desde el Excel")));
+                        personaje.setEspecie(especie);
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("⚠️ Aviso: La edad o estatura de " + nombreCompleto + " no es válida. Se dejará en blanco.");
-                }
 
-                // 5. Conectar la Especie (Buscamos si existe, si no, la creamos)
-                if (!nombreEspecie.isEmpty()) {
-                    Especie especie = especieRepository.findByNombre(nombreEspecie)
-                            .orElseGet(() -> especieRepository.save(new Especie(nombreEspecie, "Autogenerado desde el Excel")));
-                    personaje.setEspecie(especie);
-                }
+                    // Guardar en PostgreSQL
+                    personajeRepository.save(personaje);
+                    System.out.println("✅ Nuevo personaje sembrado: " + nombreCompleto);
 
-                // 6. Guardar en PostgreSQL
-                personajeRepository.save(personaje);
-                System.out.println("✅ Personaje sembrado exitosamente: " + nombreCompleto);
+                } else {
+                    // Si ya existe, lo ignoramos para evitar duplicados o errores
+                    System.out.println("⏩ Omitiendo: " + nombreCompleto + " ya existe en la base de datos.");
+                }
             }
         } catch (Exception e) {
             System.out.println("❌ Error al leer el archivo: " + e.getMessage());
