@@ -1,13 +1,18 @@
 package com.prueba.demo.seeder;
 
-import com.prueba.demo.model.*;
-import com.prueba.demo.repository.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader; // <-- Agrega esta línea
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import com.prueba.demo.model.Especie;
+import com.prueba.demo.model.Personaje;
+import com.prueba.demo.repository.EspecieRepository;
+import com.prueba.demo.repository.PersonajeRepository;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
@@ -71,6 +76,25 @@ public class DataSeeder implements CommandLineRunner {
                         Especie especie = especieRepository.findByNombre(nombreEspecie)
                                 .orElseGet(() -> especieRepository.save(new Especie(nombreEspecie, "Autogenerado desde el Excel")));
                         personaje.setEspecie(especie);
+                    }
+
+                    // ==========================================
+                    // LECTURA DE RELACIONES (ÍNDICE 17 / COLUMNA 18)
+                    // ==========================================
+                    if (datos.length > 17 && !datos[17].trim().isEmpty()) {
+                        String relacionesStr = datos[17].trim();
+                        Map<String, String> mapaRelaciones = new HashMap<>();
+                        
+                        // Cortamos primero por punto y coma (;)
+                        String[] paresPersonas = relacionesStr.split(";");
+                        for (String par : paresPersonas) {
+                            // Cortamos por dos puntos (:)
+                            String[] detalleVinculo = par.split(":");
+                            if (detalleVinculo.length == 2) {
+                                mapaRelaciones.put(detalleVinculo[0].trim(), detalleVinculo[1].trim());
+                            }
+                        }
+                        personaje.setRelaciones(mapaRelaciones);
                     }
 
                     // Guardar en PostgreSQL

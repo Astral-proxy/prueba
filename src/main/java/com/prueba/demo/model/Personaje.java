@@ -1,45 +1,41 @@
 package com.prueba.demo.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Personajes")
 public class Personaje {
 
+    // ==========================================
+    // 1. LLAVES Y DATOS PRINCIPALES
+    // ==========================================
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_personaje")
     private Integer idPersonaje;
 
-    // Especificamos el tamaño y evitamos que quede vacio con (nullable = false)
     @Column(name = "nombre_completo", nullable = false, length = 100)
     private String nombreCompleto;
-
-    @Column(name = "ocupacion", length = 50)
-    private String ocupacion;
-
-    // Especificamos que es un texto largo, no un texto corto normal
-    @Column(name = "biografia", columnDefinition = "TEXT")
-    private String biografia;
 
     @Column(name = "alias", length = 100)
     private String alias;
 
+    @Column(name = "ocupacion", length = 50)
+    private String ocupacion;
+
+    @Column(name = "biografia", columnDefinition = "TEXT")
+    private String biografia;
+
+    // ==========================================
+    // 2. EXPEDIENTE TÉCNICO / FÍSICO
+    // ==========================================
     @Column(name = "edad")
     private Integer edad;
 
@@ -52,216 +48,115 @@ public class Personaje {
     @Column(name = "fecha_nacimiento")
     private String fechaNacimiento;
 
-    @ManyToMany
-@JoinTable(
-    name = "personaje_material",
-    joinColumns = @JoinColumn(name = "personaje_id"),
-    inverseJoinColumns = @JoinColumn(name = "material_id")
-)
-private List<Material> inventarioMateriales;
+    // ==========================================
+    // 3. VÍNCULOS NARRATIVOS (SUB-TABLA LIGERA)
+    // ==========================================
+    @ElementCollection
+    @CollectionTable(name = "personaje_relaciones", joinColumns = @JoinColumn(name = "personaje_id"))
+    @MapKeyColumn(name = "nombre_personaje_relacionado")
+    @Column(name = "tipo_vinculo")
+    private Map<String, String> relaciones = new HashMap<>();
 
-    // Un personaje tiene MUCHAS relaciones
-    @OneToMany(mappedBy = "personaje", cascade = CascadeType.ALL)
-    private List<Relacion> relacionesFamiliares;
+    // ==========================================
+    // 4. RELACIONES JPA COMPLEJAS (FOREING KEYS)
+    // ==========================================
+    
+    @ManyToOne
+    @JoinColumn(name = "id_especie")
+    @JsonIgnoreProperties("personajes") // Evita bucle infinito si Especie llama a Personaje
+    private Especie especie;
 
-    // No olvides agregar el Getter y Setter para 'relacionesFamiliares' más abajo
+    @ManyToOne
+    @JoinColumn(name = "id_ubicacion")
+    @JsonIgnoreProperties("personajes")
+    private Ubicacion ubicacionActual;
 
     @ManyToMany
     @JoinTable(
-        name = "personaje_tag", // El nombre de la tabla intermedia en Postgres
+        name = "personaje_tag",
         joinColumns = @JoinColumn(name = "id_personaje"),
         inverseJoinColumns = @JoinColumn(name = "id_tag")
     )
+    @JsonIgnoreProperties("personajes")
     private List<Tag> tags;
 
-    // Recuerda agregar su Getter y Setter correspondiente
-
-    // La brújula que apunta a la ubicación donde está el personaje
-    @ManyToOne
-    @JoinColumn(name = "id_ubicacion")
-    private Ubicacion ubicacionActual;
-
-    // (Recuerda agregar al final del archivo su respectivo getUbicacionActual() y setUbicacionActual() )
-
- // La brújula que apunta a qué raza/especie pertenece
-    @ManyToOne
-    @JoinColumn(name = "id_especie")
-    private Especie especie;
-    
-    // Recuerda agregar al final del archivo:
-    // public Especie getEspecie() { return especie; }
-    // public void setEspecie(Especie especie) { this.especie = especie; }
-    
- // Relación de habilidades que posee el personaje
     @ManyToMany
     @JoinTable(
         name = "personaje_habilidad",
         joinColumns = @JoinColumn(name = "id_personaje"),
         inverseJoinColumns = @JoinColumn(name = "id_habilidad")
     )
+    @JsonIgnoreProperties("personajes")
     private List<Habilidad> habilidades;
 
-    // No olvides agregar getHabilidades() y setHabilidades() al final del archivo.
-    
- // El registro de en qué capítulos de la novela aparece este personaje
+    @ManyToMany
+    @JoinTable(
+        name = "personaje_material",
+        joinColumns = @JoinColumn(name = "personaje_id"),
+        inverseJoinColumns = @JoinColumn(name = "material_id")
+    )
+    @JsonIgnoreProperties("personajes")
+    private List<Material> inventarioMateriales;
+
     @ManyToMany
     @JoinTable(
         name = "personaje_capitulo",
         joinColumns = @JoinColumn(name = "id_personaje"),
         inverseJoinColumns = @JoinColumn(name = "id_capitulo")
     )
+    @JsonIgnoreProperties("personajes")
     private List<Capitulo> capitulosAparicion;
 
-    // Y recuerda agregar al final de tu archivo:
-    // public List<Capitulo> getCapitulosAparicion() { return capitulosAparicion; }
-    // public void setCapitulosAparicion(List<Capitulo> capitulos) { this.capitulosAparicion = capitulos; }
-    
- // 1. A qué facciones pertenece
     @ManyToMany
     @JoinTable(
         name = "personaje_organizacion",
         joinColumns = @JoinColumn(name = "id_personaje"),
         inverseJoinColumns = @JoinColumn(name = "id_organizacion")
     )
+    @JsonIgnoreProperties("miembros")
     private List<Organizacion> organizaciones;
 
-    // 2. En qué eventos históricos participó
     @ManyToMany
     @JoinTable(
         name = "personaje_evento",
         joinColumns = @JoinColumn(name = "id_personaje"),
         inverseJoinColumns = @JoinColumn(name = "id_evento")
     )
+    @JsonIgnoreProperties("participantes")
     private List<EventoHistorico> eventos;
 
-    // 3. Qué documentos o planos ha escrito (Uno a Muchos)
     @OneToMany(mappedBy = "autor")
-    @JsonIgnore
+    @JsonIgnore // El frontend no necesita traerse todos los textos enteros aquí
     private List<Documento> documentosEscritos;
 
-    // IMPORTANTE: Recuerda generar los Getters y Setters de estas 3 variables al final de Personaje.java
-    
-    // Constructores
+    // ==========================================
+    // 5. CONSTRUCTORES
+    // ==========================================
+    public Personaje() {}
 
-    // Constructor vacío (para que Spring Boot funcione)
-    public Personaje() {
-    }
-
-    // Constructor con datos (Para facilitar la creación desde el código)
     public Personaje(String nombreCompleto, String ocupacion, String biografia) {
         this.nombreCompleto = nombreCompleto;
         this.ocupacion = ocupacion;
         this.biografia = biografia;
     }
 
-    // Getters and Setters
-
-    public Integer getIdPersonaje() {
-        return idPersonaje;
-    }
-
-    public void setIdPersonaje(Integer idPersonaje) {
-        this.idPersonaje = idPersonaje;
-    }
-
-    public String getNombreCompleto() {
-        return nombreCompleto;
-    }
-
-    public void setNombreCompleto(String nombreCompleto) {
-        this.nombreCompleto = nombreCompleto;
-    }
-
-    public String getOcupacion() {
-        return ocupacion;
-    }
-
-    public void setOcupacion(String ocupacion) {
-        this.ocupacion = ocupacion;
-    }
-
-    public String getBiografia() {
-        return biografia;
-    }
-
-    public void setBiografia(String biografia) {
-        this.biografia = biografia;
-    }
-
-    // Para las relaciones familiares (Uno a Muchos)
-    public List<Relacion> getRelacionesFamiliares() {
-        return relacionesFamiliares;
-    }
-
-    public void setRelacionesFamiliares(List<Relacion> relacionesFamiliares) {
-        this.relacionesFamiliares = relacionesFamiliares;
-    }
-
-    // Para los Tags / Profesiones (Muchos a Muchos)
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-    // Para la Ubicación (Muchos a Uno)
-    public Ubicacion getUbicacionActual() {
-        return ubicacionActual;
-    }
-
-    public void setUbicacionActual(Ubicacion ubicacionActual) {
-        this.ubicacionActual = ubicacionActual;
-    }
-
-    // Para la Especie / Raza (Muchos a Uno)
-    public Especie getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(Especie especie) {
-        this.especie = especie;
-    }
-
-    // Para las Habilidades (Muchos a Muchos)
-    public List<Habilidad> getHabilidades() {
-        return habilidades;
-    }
-
-    public void setHabilidades(List<Habilidad> habilidades) {
-        this.habilidades = habilidades;
-    }
-
-    // Para los Capítulos de Aparición (Muchos a Muchos)
-    public List<Capitulo> getCapitulosAparicion() {
-        return capitulosAparicion;
-    }
-
-    public void setCapitulosAparicion(List<Capitulo> capitulosAparicion) {
-        this.capitulosAparicion = capitulosAparicion;
-    }
-
-    public List<Organizacion> getOrganizaciones() { 
-    	return organizaciones; }
-    
-    public void setOrganizaciones(List<Organizacion> organizaciones) 
-    { this.organizaciones = organizaciones;
-    }
-
-    public List<EventoHistorico> getEventos() { 
-    	return eventos; }
-    
-    public void setEventos(List<EventoHistorico> eventos) { 
-    	this.eventos = eventos; 
-    	}
-
-    public List<Documento> getDocumentosEscritos() { return documentosEscritos; }
-    public void setDocumentosEscritos(List<Documento> documentosEscritos) { this.documentosEscritos = documentosEscritos; }
-
     // ==========================================
-    // GETTERS Y SETTERS: DATOS PERSONALES INFOBOX
+    // 6. GETTERS Y SETTERS
     // ==========================================
+    public Integer getIdPersonaje() { return idPersonaje; }
+    public void setIdPersonaje(Integer idPersonaje) { this.idPersonaje = idPersonaje; }
+
+    public String getNombreCompleto() { return nombreCompleto; }
+    public void setNombreCompleto(String nombreCompleto) { this.nombreCompleto = nombreCompleto; }
+
+    public String getAlias() { return alias; }
+    public void setAlias(String alias) { this.alias = alias; }
+
+    public String getOcupacion() { return ocupacion; }
+    public void setOcupacion(String ocupacion) { this.ocupacion = ocupacion; }
+
+    public String getBiografia() { return biografia; }
+    public void setBiografia(String biografia) { this.biografia = biografia; }
 
     public Integer getEdad() { return edad; }
     public void setEdad(Integer edad) { this.edad = edad; }
@@ -275,9 +170,33 @@ private List<Material> inventarioMateriales;
     public String getFechaNacimiento() { return fechaNacimiento; }
     public void setFechaNacimiento(String fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public String getAlias() { return alias; }
-    public void setAlias(String alias) { this.alias = alias; }
+    public Map<String, String> getRelaciones() { return relaciones; }
+    public void setRelaciones(Map<String, String> relaciones) { this.relaciones = relaciones; }
+
+    public Especie getEspecie() { return especie; }
+    public void setEspecie(Especie especie) { this.especie = especie; }
+
+    public Ubicacion getUbicacionActual() { return ubicacionActual; }
+    public void setUbicacionActual(Ubicacion ubicacionActual) { this.ubicacionActual = ubicacionActual; }
+
+    public List<Tag> getTags() { return tags; }
+    public void setTags(List<Tag> tags) { this.tags = tags; }
+
+    public List<Habilidad> getHabilidades() { return habilidades; }
+    public void setHabilidades(List<Habilidad> habilidades) { this.habilidades = habilidades; }
 
     public List<Material> getInventarioMateriales() { return inventarioMateriales; }
-public void setInventarioMateriales(List<Material> inventarioMateriales) { this.inventarioMateriales = inventarioMateriales; }
+    public void setInventarioMateriales(List<Material> inventarioMateriales) { this.inventarioMateriales = inventarioMateriales; }
+
+    public List<Capitulo> getCapitulosAparicion() { return capitulosAparicion; }
+    public void setCapitulosAparicion(List<Capitulo> capitulosAparicion) { this.capitulosAparicion = capitulosAparicion; }
+
+    public List<Organizacion> getOrganizaciones() { return organizaciones; }
+    public void setOrganizaciones(List<Organizacion> organizaciones) { this.organizaciones = organizaciones; }
+
+    public List<EventoHistorico> getEventos() { return eventos; }
+    public void setEventos(List<EventoHistorico> eventos) { this.eventos = eventos; }
+
+    public List<Documento> getDocumentosEscritos() { return documentosEscritos; }
+    public void setDocumentosEscritos(List<Documento> documentosEscritos) { this.documentosEscritos = documentosEscritos; }
 }

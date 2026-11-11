@@ -14,6 +14,6 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Integer> {
     // para buscar todos los personajes que tengan un Tag con el nombre que le pases.
     List<Personaje> findByTags_Nombre(String nombreTag);
 
-    // NUEVO: Método para que el Seeder verifique si el personaje ya existe antes de inyectarlo
+    // Método para que el Seeder verifique si el personaje ya existe antes de inyectarlo
     boolean existsByNombreCompleto(String nombreCompleto);
 }
