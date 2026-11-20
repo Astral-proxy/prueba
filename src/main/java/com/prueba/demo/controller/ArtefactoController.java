@@ -1,49 +1,42 @@
 package com.prueba.demo.controller;
 
-import com.prueba.demo.model.Artefacto;
-import com.prueba.demo.service.ArtefactoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.prueba.demo.model.Artefacto;
+import com.prueba.demo.repository.ArtefactoRepository;
 
 @RestController
 @RequestMapping("/api/artefactos")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ArtefactoController {
 
-    @Autowired
-    private ArtefactoService artefactoService;
+    private final ArtefactoRepository artefactoRepository;
+
+    public ArtefactoController(ArtefactoRepository artefactoRepository) {
+        this.artefactoRepository = artefactoRepository;
+    }
 
     @GetMapping
     public List<Artefacto> listarTodos() {
-        return artefactoService.obtenerTodos();
+        return artefactoRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Artefacto> obtenerPorId(@PathVariable Integer id) {
-        return artefactoService.obtenerPorId(id)
+    @GetMapping("/{idOSlug}")
+    public ResponseEntity<Artefacto> obtenerDetalle(@PathVariable String idOSlug) {
+        if (idOSlug.matches("\\d+")) {
+            return artefactoRepository.findById(Integer.parseInt(idOSlug))
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        }
+        return artefactoRepository.findBySlugIgnoreCase(idOSlug)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public Artefacto crear(@RequestBody Artefacto artefacto) {
-        return artefactoService.guardar(artefacto);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Artefacto> actualizar(@PathVariable Integer id, @RequestBody Artefacto artefacto) {
-        try {
-            return ResponseEntity.ok(artefactoService.actualizar(id, artefacto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        artefactoService.eliminar(id);
-        return ResponseEntity.noContent().build();
     }
 }

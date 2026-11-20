@@ -13,6 +13,8 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Integer> {
     // Spring Boot lee el nombre de este método y automáticamente crea el código SQL 
     // para buscar todos los personajes que tengan un Tag con el nombre que le pases.
     List<Personaje> findByTags_Nombre(String nombreTag);
+    Optional<Personaje> findByAliasIgnoreCase(String alias);
+    Optional<Personaje> findByNombreCompletoIgnoreCase(String nombreCompleto);
 
     // Método para que el Seeder verifique si el personaje ya existe antes de inyectarlo
     boolean existsByNombreCompleto(String nombreCompleto);
